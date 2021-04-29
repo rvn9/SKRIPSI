@@ -18,18 +18,24 @@ class VoteModelAdapter extends TypeAdapter<VoteModel> {
     };
     return VoteModel(
       TagID: fields[0] as String,
-      Id_kandidat: fields[1] as String,
+      Id_calon: fields[1] as String,
+      Kategori: fields[2] as String,
+      Tipe: fields[3] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, VoteModel obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.TagID)
       ..writeByte(1)
-      ..write(obj.Id_kandidat);
+      ..write(obj.Id_calon)
+      ..writeByte(2)
+      ..write(obj.Kategori)
+      ..writeByte(3)
+      ..write(obj.Tipe);
   }
 
   @override

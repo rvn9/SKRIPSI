@@ -7,13 +7,14 @@ class VoteModel {
   String TagID;
 
   @HiveField(1)
-  String Id_kandidat;
+  String Id_calon;
 
-  VoteModel({ this.TagID, this.Id_kandidat});
+  @HiveField(2)
+  String Kategori;
 
+  @HiveField(3)
+  String Tipe;
 
-  @override
-  String toString() {
-    return '$TagID: $Id_kandidat';
-  }
+  VoteModel({ this.TagID, this.Id_calon, this.Kategori, this.Tipe});
+
 }

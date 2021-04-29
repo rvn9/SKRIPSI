@@ -6,6 +6,7 @@ import 'package:skripsi/models/voteModel.dart';
 
 Future<void> main() async {
   await Hive.initFlutter();
+  Hive.registerAdapter(VoteModelAdapter());
   runApp(MyApp());
 }
 

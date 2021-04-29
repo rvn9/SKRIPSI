@@ -9,33 +9,76 @@ import 'package:skripsi/models/voteModel.dart';
 import 'package:skripsi/util/encryption.dart';
 
 class BacaVote extends StatefulWidget {
+
   @override
   _BacaVoteState createState() => _BacaVoteState();
 }
 
 
-
-
 class _BacaVoteState extends State<BacaVote> {
   var _userJson;
   Box data_suara_box;
+  List _listSuara = <VoteModel>[];
+  bool isVerified = false;
 
-  SaveToHiveDB(Id_pasangan, TagID) async {
-
-    var kartu_suara = VoteModel(
-      TagID: TagID,
-      Id_kandidat:Id_pasangan,
-    );
-    await data_suara_box.add(kartu_suara);
-  }
-
-  @override
-  void initState() async{
-    // TODO: implement initState
-    super.initState();
-    await Hive.registerAdapter(VoteModelAdapter());
+  SaveToHiveDB(data) async {
     data_suara_box = await Hive.openBox('data_suara');
+    var kartu_suara = {
+      "TagID" : data['TagID'],
+      "Id_presiden" : data['Id_presiden'],
+      "Id_dpr" : data['Id_dpr'],
+      "dprType" : data['dprType'],
+      "Id_dpd" : data['Id_dpd'],
+      "Id_dprd_provinsi" :  data['Id_dprd_provinsi'],
+      "dprdProvinsiType" : data['dprdProvinsiType'],
+      "Id_dprd_kabupaten" : data['Id_dprd_kabupaten'],
+      "dprdKabupatenType" : data['dprdKabupatenType'],
+    };
+
+    print(data);
+
+    // insert kartu suara ke offline db (hive db) //
+    data_suara_box.add(kartu_suara);
+
+    print(data_suara_box.values.toList());
+
   }
+
+  CheckDuplicateHiveDB(data, hash) async{
+
+    data_suara_box = await Hive.openBox('data_suara');
+    _listSuara = data_suara_box.values.toList();
+    print(_listSuara);
+    if(_listSuara.isEmpty){
+      if(_userJson['data'][0]['Hash_value'] == hash){
+        SaveToHiveDB(data);
+        setState(() {
+          isVerified = true;
+        });
+      }
+      _showDialog(context,isVerified);
+    }else{
+      for (var suara in _listSuara) {
+        if(suara['TagID'] == data['TagID'] ){
+          Scaffold.of(context).showSnackBar(
+              SnackBar(content: Text('Kartu berikut sudah digunakan.')));
+          break;
+        }else {
+          if(_userJson['data'][0]['Hash_value'] == hash){
+            SaveToHiveDB(data);
+            setState(() {
+              isVerified = true;
+            });
+          }
+          _showDialog(context,isVerified);
+          break;
+        }
+      }
+    }
+
+
+  }
+
 
   Future<bool> checkNFC() async {
     bool nfc_is_available = await NfcManager.instance.isAvailable();
@@ -70,9 +113,9 @@ class _BacaVoteState extends State<BacaVote> {
     );
   }
 
-  baca_suara(context,_currUserTagID,hash, jsonData) async{
-    String url = 'http://192.168.100.10:3000/endpoint/pemilih/get_data_pemilih';
-    bool isVerified = false;
+  baca_suara(context,TagID,hash, jsonData) async{
+    String url = 'http://192.168.100.218:3000/endpoint/pemilih/get_data_pemilih';
+    print(TagID);
     try {
       final response = await http.post(
         url,
@@ -80,30 +123,19 @@ class _BacaVoteState extends State<BacaVote> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, String>{
-          'TagID': _currUserTagID,
+          'TagID': TagID,
         }),
       ).timeout(const Duration(seconds: 20));
 
       if(response.statusCode == 200) {
         _userJson = jsonDecode(response.body);
-        if(_userJson['data'][0]['Is_voted'] == false){
-          if(_userJson['data'][0]['Hash_value'] == hash){
-
-            // insert suara ke hive local db //
-            SaveToHiveDB(jsonData['Id_pasangan'],jsonData['TagId']);
-
-            // // masukin data vote ny ke suara lewat id pasangan //
-            // insert_kartu_suara(jsonData['Id_pasangan'],jsonData['TagId']);
-
-            setState(() {
-              isVerified = true;
-            });
-          }
-          _showDialog(context,isVerified);
-        }else if(_userJson['data'][0]['Is_voted'] == true){
+        if(_userJson['data'][0]['Is_readed'] == true){
           Scaffold.of(context).showSnackBar(
               SnackBar(content: Text('Kartu berikut sudah digunakan.')));
+        }else{
+          CheckDuplicateHiveDB(jsonData, hash);
         }
+
       }
 
     } catch (err){
@@ -112,27 +144,6 @@ class _BacaVoteState extends State<BacaVote> {
     }
 
   }
-
-  Future<void> insert_kartu_suara(Id_kandidat, TagID) async {
-    String url = 'http://192.168.100.10:3000/endpoint/kandidat/vote';
-
-
-    final response = await http.patch(url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'TagID' : TagID,
-        'Id_Kandidat' : Id_kandidat
-      }),
-    );
-
-    if(response.statusCode != 200) {
-      Scaffold.of(context).showSnackBar(
-          SnackBar(content: Text('Memasukan data ke kartu gagal, silahkan coba lagi.')));
-    }
-  }
-
 
 
   @override
@@ -178,8 +189,9 @@ class _BacaVoteState extends State<BacaVote> {
                   var decrpyted = decryptAESCryptoJS(data_vote['data'], "skripsi-andreas-agustinus-2017");
                   var jsonData = jsonDecode(decrpyted);
 
+                  print(jsonData);
                   // check hash value //
-                  baca_suara(context, jsonData['TagId'], data_vote['hash'],jsonData);
+                  baca_suara(context, jsonData['TagID'], data_vote['hash'],jsonData);
 
 
                 }

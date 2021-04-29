@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:nfc_manager/nfc_manager.dart';
 import 'package:nfc_manager/platform_tags.dart';
 import 'package:skripsi/adminPage.dart';
+import 'package:skripsi/kategoriSuara.dart';
 import 'package:skripsi/util/util.dart';
 import 'package:skripsi/votingPage.dart';
 import "package:http/http.dart" as http;
@@ -23,7 +25,7 @@ Future<bool> checkNFC() async {
 }
 
 void _create_new_pemilih(context, _currUserTagID) {
-  String url = 'http://192.168.100.10:3000/endpoint/pemilih/add_new_pemilih';
+  String url = 'http://192.168.100.218:3000/endpoint/pemilih/add_new_pemilih';
 
   http.post(
     url,
@@ -46,7 +48,7 @@ void _create_new_pemilih(context, _currUserTagID) {
 
 Future<Object> check_user (context,_currUserTagID) async{
   var _userJson;
-  String url = 'http://192.168.100.10:3000/endpoint/pemilih/get_data_pemilih';
+  String url = 'http://192.168.100.218:3000/endpoint/pemilih/get_data_pemilih';
 
   try {
     final response = await http.post(
@@ -60,6 +62,7 @@ Future<Object> check_user (context,_currUserTagID) async{
     ).timeout(const Duration(seconds: 20));
 
     if (response.statusCode == 200) {
+
       // If the server did return a 200 OK response,
       // then parse the JSON.
       _userJson = jsonDecode(response.body);
@@ -72,10 +75,20 @@ Future<Object> check_user (context,_currUserTagID) async{
         if(_userJson['data'][0]['Privilege'] == "user"){
           // move to pemilih page //
           var data = {
-            "TagID" : _userJson['data'][0]['TagID']
+            "TagID" : _userJson['data'][0]['TagID'],
+            "Is_voted" : _userJson['data'][0]['Is_voted'],
+            "Is_saved" : _userJson['data'][0]['Is_saved']
           };
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => VotingPage(data)));
+
+          if(data['Is_voted'] == true){
+            Scaffold.of(context).showSnackBar(
+                SnackBar(content: Text('Hak suara anda sudah digunakan.')));
+          }else{
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => KategoriSuara(data)));
+          }
+
+
         }else if(_userJson['data'][0]['Privilege'] == "admin"){
           // move to admin page //
           var data = {
@@ -90,6 +103,7 @@ Future<Object> check_user (context,_currUserTagID) async{
       throw Exception("Failed to load data");
     }
   } catch (err){
+    log("Terima dari server");
     Scaffold.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load data.')));
   }
