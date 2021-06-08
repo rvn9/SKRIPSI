@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+import 'PerolehanSuara.dart';
 import 'aturKandidat.dart';
 import 'bacaVote.dart';
 import 'listSuara.dart';
@@ -42,7 +43,7 @@ class _AdminPageState extends State<AdminPage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: DefaultTabController(
-        length: 3,
+        length: 4,
         child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
@@ -93,6 +94,14 @@ class _AdminPageState extends State<AdminPage> {
                     ),
                   ) ,
                 ),
+                Tab(
+                  child: Text(
+                    "Perolehan Suara",
+                    style: TextStyle(
+                      fontSize: 12,
+                    ),
+                  ) ,
+                ),
               ],
             ),
           ),
@@ -101,6 +110,7 @@ class _AdminPageState extends State<AdminPage> {
               BacaVote(),
               AturKandidat(),
               ListSuara(widget._userData),
+              PerolehanSuara(),
             ],
           ),
         ),

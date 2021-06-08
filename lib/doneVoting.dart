@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:nfc_manager/nfc_manager.dart';
+import 'package:skripsi/homePage.dart';
 import 'package:skripsi/util/encryption.dart';
 import 'package:skripsi/util/nfcSession.dart';
 import 'package:crypto/crypto.dart';
@@ -68,9 +69,14 @@ class _DoneVotingState extends State<DoneVoting> {
         list_suara = box.values.toList();
         // check isiny ada ga //
         if (box.values.isEmpty) {
-          return Center(
-            child: Text(
-                "BELUM ADA DATA SUARA."
+          Future.delayed(const Duration(milliseconds: 1000), () {
+            Navigator.push(context,MaterialPageRoute(builder: (context) => HomePage()));
+          });
+          return Scaffold(
+            body:  Center(
+              child: Text(
+                  "BELUM ADA DATA SUARA."
+              ),
             ),
           );
         } else {

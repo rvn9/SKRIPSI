@@ -35,12 +35,12 @@ class _BacaVoteState extends State<BacaVote> {
       "dprdKabupatenType" : data['dprdKabupatenType'],
     };
 
-    print(data);
+
 
     // insert kartu suara ke offline db (hive db) //
     data_suara_box.add(kartu_suara);
 
-    print(data_suara_box.values.toList());
+
 
   }
 

@@ -121,7 +121,7 @@ class _HomePageState extends State<HomePage> {
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           if (snapshot.data == false) {
             return Center(
-              child: Text("Sorry your phone doesn't support NFC"),
+              child: Text("Maaf device yang anda gunakan tidak memiliki fitur nfc"),
             );
           }else {
             // Start Session
@@ -151,11 +151,12 @@ class _HomePageState extends State<HomePage> {
                     size: 240.0,
                   ),
                   Text(
-                    'Scan your nfc card here.',
+                    'Tempelkan kartu e-KTP anda belakang handphone.',
                     style: TextStyle(
                         fontSize: 24,
                         color: Colors.black,
                         fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),

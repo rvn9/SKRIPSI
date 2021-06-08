@@ -341,12 +341,10 @@ class _VotingPageState extends State<VotingPage> {
     var nomor_urut_pasangan = item['Nomor_urut_pasangan'];
 
     // presiden //
-    var nama_calon_presiden = item['Calon_presiden']['Nama'];
-    var foto_calon_presiden = item['Calon_presiden']['Foto'];
+    var nama_calon_presiden = item['Calon_presiden'];
 
     // wakil presiden //
-    var nama_calon_wakil_presiden = item['Calon_wakil_presiden']['Nama'];
-    var foto_calon_wakil_presiden = item['Calon_wakil_presiden']['Foto'];
+    var nama_calon_wakil_presiden = item['Calon_wakil_presiden'];
 
     // partai pendukung nanti aja deh //
 
@@ -359,18 +357,6 @@ class _VotingPageState extends State<VotingPage> {
           child: ListTile(
             title: Row(
               children: <Widget>[
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                      color: Colors.yellow,
-                      borderRadius: BorderRadius.circular(60/2),
-                      image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: NetworkImage(foto_calon_wakil_presiden)
-                      )
-                  ),
-                ),
                 SizedBox(width: 20,),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

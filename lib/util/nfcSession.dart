@@ -5,7 +5,7 @@ import 'package:nfc_manager/nfc_manager.dart';
 Future<void> startSession({
   @required BuildContext context,
   @required Future<String> Function(NfcTag) handleTag,
-  String alertMessage = 'Hold your device near the item.',
+  String alertMessage = 'Tempelkan kartu suara anda ke bagian belakang device.',
 }) async {
   if (Platform.isIOS) {
     return NfcManager.instance.startSession(
@@ -78,7 +78,7 @@ class _AndroidNfcDialogState extends State<_AndroidNfcDialog> {
       title: Text(
         _errorMessage?.isNotEmpty == true ? 'Error' :
         _alertMessage?.isNotEmpty == true ? 'Success' :
-        'Ready to scan',
+        'Siap untuk membaca',
       ),
       content: Text(
         _errorMessage?.isNotEmpty == true ? _errorMessage :
